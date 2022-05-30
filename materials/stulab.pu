@@ -1,0 +1,113 @@
+@startuml stulab
+
+entity user<<ユーザー>> {
+  * id [PK]
+  --
+  * username [ユーザー名]
+  mail_address [メール]
+  password_digest [パスワード]
+  introduction [自己紹介]
+  * delete_flg [削除フラグ]
+  icon_url_path [アイコンパス]
+}
+
+entity federated_credentials<<認証プロバイダー>> {
+  * provider [PK] [プロバイダー]
+  * provider_user_id [PK]
+  --
+  * user_id [FK]
+}
+
+entity m_field<<分野マスタ>> {
+  * id [PK]
+  --
+  * name [分野名]
+}
+
+entity teacher<<講師>> {
+  * id [PK]
+  --
+  * user_id [FK]
+  * description [できること]
+}
+
+entity service<<サービス>> {
+  * id [PK]
+  * teacher_id [PK]
+  --
+  * teacher_name [講師名]
+  * title [タイトル]
+  * type [契約形態]
+  * fee [料金]
+  * description [サービス内容]
+}
+
+entity user_field<<ユーザー分野マスタ関連>> {
+  * user_id [PK]
+  * field_id [PK]
+}
+
+entity service_field<<サービス分野マスタ関連>> {
+  * teacher_id [PK] 
+  * field_id [PK]
+}
+
+entity review<<レビュー>> {
+  * service_id [PK]
+  * student_id [PK]
+  --
+  * rating [評価]
+  comment [コメント]
+  * created_at [作成日]
+}
+
+entity contract<<契約>> {
+  * student_id [PK]
+  * service_id [PK]
+  --
+  * teacher_id
+  * start_day
+}
+
+entity message<<メッセージ>> {
+  * id [PK]
+  --
+  * from [FK]
+  * to [FK]
+  * message_text [テキスト]
+  * created_at [作成日]
+  * is_read [既読]
+}
+
+entity notification<<お知らせ>> {
+  * id [PK]
+  --
+  * receiver_id [FK]
+  * text [通知テキスト]
+  * receive_date [受信日]
+}
+
+entity schedule<<スケジュール>> {
+  * id [PK]
+  --
+  * teacher_id [FK]
+  * student_id [FK]
+  * contract_day [授業日]
+  memo [メモ]
+}
+
+user ||.l.o{ federated_credentials
+user ||..o| teacher
+teacher ||--|{ service
+user ||-r-|{ user_field
+m_field ||-u-|{ user_field
+teacher ||-r-|{ service_field
+m_field ||--|{ service_field
+teacher ||-d-o{ review
+user ||--o{ contract
+service ||-u-o{ contract
+user ||.u.o{ message
+user ||.u.o{ notification
+contract ||.l.o{ schedule
+
+@enduml
